@@ -28,6 +28,8 @@ def dictionary(m):
     number = wordToNumber[m.group(0)]
     return str(number)
 
+# Checks if the string is a digit and if not, turn it from a word to a string digit
+# i.e 'one' to '1'
 def helperWordToDigit(word):
     if word.isdigit():
         return word
@@ -46,18 +48,28 @@ totalCount = 0
 finalNumber = ''
 finalTwoDigit = ''
 
+# For each line in the file
 for line in theFile:
+    # Reset variables to empty strings
     finalNumber = ''
     finalTwoDigit = ''
+
+    # Look for digits or word digits such as 'one', 'two', etc.
     patternList = re.findall(wordDigitPattern, line)
 
+    # For each character matched in regex,
+    # if it's a character and not an empty '', append it finalNumber
     for array in patternList:
         for char in array:
             if char != '':
                 finalNumber += helperWordToDigit(char)
     
+    # Create a two digit number with the first and last number of the parsed line
     finalTwoDigit = finalNumber[0] + finalNumber[-1]
+    
+    # Add to the total count.
     totalCount += int(finalTwoDigit)
+    
     print(finalNumber)
     print(finalTwoDigit, end='\n\n')
 
