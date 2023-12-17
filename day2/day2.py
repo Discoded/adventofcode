@@ -27,6 +27,7 @@ def main():
     power_sum = 0
 
     for line in theFile:
+        
         print(line, end='')
         m = re.match("(Game )+(?P<game_id>[0-9]*[0-9])", line)
         game_id = m.group("game_id")
