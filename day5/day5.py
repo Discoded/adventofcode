@@ -13,4 +13,9 @@ except:
 def main():
     load_data()
 
+def load_data():
+    
+    for line in theFile:
+        m = re.match("(seeds: )+(?P<game_id>[0-9]*[0-9])", line)
+
 main()
