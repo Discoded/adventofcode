@@ -366,8 +366,9 @@ map: [[50, 98, 2], [52, 50, 48]]
 
 def Map(key): value:
     for elem in map:
-        if elem[1] >= key >=  elem[1] + elem[2] - 1:
-            return elem[0] + key
+        if elem[1] + elem[2] - 1 >= key >=  elem[1]:
+            return  key - elem[1] + elem[0]
+
 ```
 
 
