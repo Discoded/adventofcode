@@ -9,11 +9,13 @@ def main():
         # Open file containing the words separated by a line
         theFile = open("./day5.txt")
         #theFile = open("./day5-practice.txt")
-        
-        
+              
     except:
         print("NO FILE")
+
     load_data(theFile)
+    
+    
     
 
 def load_data(theFile):
@@ -76,65 +78,20 @@ def load_data(theFile):
             break
     seeds = [int(x) for x in seeds]
     print(seeds)
-
-    iterable = iter(seeds)
-    out = next(iterable)
-    seed_range_pair = []
-    while True:
-        try:
-            ##print(out)
-            theSeed = out
-            out = next(iterable)
-            theRange = out
-            seed_range_pair.append([theSeed, theRange])
-
-            out = next(iterable)
-
-        except StopIteration:
-                print("StopIteration triggered")
-                break
+    solutions = [[] for x in range(0, 8)]
+    for i, seed in enumerate(seeds):
+        solutions[0].append(seed)
+        solutions[1].append(seed_to_soil_map.get(seed))
+        solutions[2].append(soil_to_fertilizer_map.get(solutions[1][i]))
+        solutions[3].append(fertilizer_to_water_map.get(solutions[2][i]))
+        solutions[4].append(water_to_light_map.get(solutions[3][i]))
+        solutions[5].append(light_to_temperature_map.get(solutions[4][i]))
+        solutions[6].append(temperature_to_humidity_map.get(solutions[5][i]))
+        solutions[7].append(humidity_to_location_map.get(solutions[6][i]))
     
-    min_location = sys.maxsize
-    for pair in seed_range_pair:
-        soils = getRange(pair, seed_to_soil_map)
-        fertilizers = getValues(soils, soil_to_fertilizer_map)
-        waters = getValues(fertilizers, fertilizer_to_water_map)
-        lights = getValues(waters, water_to_light_map)
-        temperature = getValues(lights, light_to_temperature_map)
-        humiditys = getValues(temperature, temperature_to_humidity_map)
-        locations = getValues(humiditys, humidity_to_location_map)
-        print(locations)
-        for location in locations:
-            if(location[0] < min_location):
-                
-                min_location = location[0]
-
+    min_location = min(solutions[7])
     print("min_location: ", min_location)
 
-def getRange(thePair, theMap):
-    theSourcePairList = theMap.find(thePair)
-    theSeeds = []
-    
-    for pair in theSourcePairList:
-
-        destStart = theMap.get(pair[0])
-        destEnd = pair[1] - pair[0] + destStart
-        theSeeds.append([destStart, destEnd])
-    return theSeeds
-
-def getValues(valuesPairList, theMap):
-    theSeeds = []
-    for value in valuesPairList:
-        theSourcePairList = theMap.find([value[0], value[1]-value[0]+1])
-        for pair in theSourcePairList:
-
-            destStart = theMap.get(pair[0])
-            destEnd = pair[1] - pair[0] + destStart
-            theSeeds.append([destStart, destEnd])
-    return theSeeds
-
-
-    
 
 def handle_map_input(theLine):
 
