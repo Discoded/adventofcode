@@ -2,8 +2,9 @@
 import re
 try: 
     # Open file containing the words separated by a line
-    theFile = open("./day3.txt")
-    #theFile = open("./day3-practice.txt")
+    #theFile = open("./day3.txt")
+    #theFile = open("./day3-2.txt")
+    theFile = open("./day3-practice.txt")
     
 except:
     print("NO FILE")
