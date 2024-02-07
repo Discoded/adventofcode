@@ -364,7 +364,7 @@ Given a map (destination, source, range):
 Map can be stored as
 map: [[50, 98, 2], [52, 50, 48]]
 
-def Map(key): value:
+def Map(key) -> value:
     for elem in map:
         if elem[1] + elem[2] - 1 >= key >=  elem[1]:
             return  key - elem[1] + elem[0]
@@ -375,7 +375,147 @@ def Map(key): value:
 
 
 ## Part 2
+
 - [ ] Find THE Map which Maps seed to location, (Merge maps)
 - [x] Reduce Seeds instead of manually inputting each seed invidually
+
+### Problem
+
+Everyone will starve if you only plant such a small number of seeds. Re-reading the almanac, it looks like the seeds: line actually describes ranges of seed numbers.
+
+The values on the initial seeds: line come in pairs. Within each pair, the first value is the start of the range and the second value is the length of the range. So, in the first line of the example above:
+
+seeds: 79 14 55 13
+
+This line describes two ranges of seed numbers to be planted in the garden. The first range starts with seed number 79 and contains 14 values: 79, 80, ..., 91, 92. The second range starts with seed number 55 and contains 13 values: 55, 56, ..., 66, 67
+
+### Example
+
+```
+seeds 79 14 55 13
+Map: 
+56 75 10
+77 85 26
+
+Map maps out numbers: 
+75 ~ 84 to 56 ~ 65
+85 ~ 110 to 77 ~ 102
+
+Seed [79, 14] means seeds 79 ~ 92
+This set of seeds must be split according to the map
+Our map describes 79 ~ 84 mapping to 60 ~ 65
+85 ~ 92 remains which maps to 77 ~ 84
+Seed [55, 13] means seeds 55 ~ 67
+            which maps to 55 ~ 67 as it's out of range
+```
+
+### Solution
+Checking individual seeds will take too long.
+
+What we can do is use the ranges.
+```
+Let 
+keyPairList = [[79, 14], [55, 13]]
+Where each element of keyPairList actually means a list of keys [79, 80, 81, ..., 93]
+Let keyStart be the starting element of each inner list and range the last element.
+Then the list of keys is equal to: [keyStart, keyStart + 1, keyStart +2, ..., keyStart + range - 1]
+
+Let Map: destination, source, range
+56 75 10
+77 85 26
+Storing map as map: [[56, 75, 10], [77, 85, 26]]
+
+Each inner list describes a range of numbers mapping out
+
+element[0] = destination
+element[1] = source
+element[2] = range
+
+function find():
+    let
+    sourceStart = source
+    sourceRange = range
+    sourceEnd = source +  sourceRange - 1
+
+    Find pair [keyStart, keyRange] where sourceEnd >= keyStart >= sourceStart
+    keyEnd = keyStart + keyRange - 1
+
+    if sourceEnd >= keyEnd:
+        return [keyStart, keyRange]
+    else 
+        remainderRange = keyEnd - sourceEnd
+        remainder = [sourceEnd + 1, remainderRange]
+        return [seedStart, source end] + find(remainder)
+    
+    return [[keyStart, keyEnd]]
+
+```
+#### Running this through using the example above:
+```
+keyPairList:[[79, 14], [55, 13]]
+Map:
+56 75 10
+77 85 26
+
+sourceStart = 75
+sourceRange = 10
+sourceEnd = 84 (75 + 10 - 1)
+
+pair [keyStart, keyRange] = [79, 14]
+keyEnd = keyStart + keyRange - 1 = 92 (79 + 14 - 1)
+and the corresponding map is 
+[56, 75, 10] as sourceEnd: 84 (75 + 10 - 1) >= keyStart: 79
+
+if sourceEnd: 84 >= keyEnd: 92 -> false
+else -> this is ran
+    remainder = [85, 7]
+    return [79, 5] + find(remainder)
+
+remainder = [85, 7]
+
+find([85, 7]):
+    pair [keyStart, range] = [85, 7]
+    keyEnd = 91
+and the corresponding map is 
+[77, 85, 26] as sourceEnd: (85+26-1) >= keyStart: 85
+
+if sourceEnd: 110 >= keyEnd: 91 -> true
+    return [85, 7]
+
+Final run through should be: [[79, 5], [85, 7]]
+
+We can then use the get key function
+
+map: [[50, 98, 2], [52, 50, 48]]
+
+def Map.get(key) -> value:
+    for elem in map:
+        if elem[1] + elem[2] - 1 >= key >=  elem[1]:
+            return  key - elem[1] + elem[0]
+
+Assuming input = [keyStart, keyRange] = [79, 5]
+
+startValue = Map.get(keyStart) 
+60 = Map.get(79) 
+
+endValue = startValue + keyRange
+64 = 60 + 5 - 1
+
+```
+Therefore keys 79 ~ 84 maps to 60 ~ 65 and 85 ~ 91 map to 85 ~ 91
+
+#### Problem Solving:
+```
+1st - Get seeds:
+    Seeds are in seed_range_pairs = [[79, 14], [55, 13]]
+        Example: [79, 14] denotes seeds 79 ~ 92 or elem[0] ~ (elem[0] + elem[1] - 1)
+
+2nd - For each seed pair - 
+    Split them in such a way that the map works on them
+
+3rd - 
+
+```
+
     
 
