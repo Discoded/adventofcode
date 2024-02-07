@@ -16,7 +16,6 @@ def main():
     load_data(theFile)
     
     
-    
 
 def load_data(theFile):
     
@@ -76,8 +75,9 @@ def load_data(theFile):
         except StopIteration:
             print("StopIteration triggered")
             break
+    
+    """Solution to Day 5 Part 1
     seeds = [int(x) for x in seeds]
-    print(seeds)
     solutions = [[] for x in range(0, 8)]
     for i, seed in enumerate(seeds):
         solutions[0].append(seed)
@@ -88,9 +88,81 @@ def load_data(theFile):
         solutions[5].append(light_to_temperature_map.get(solutions[4][i]))
         solutions[6].append(temperature_to_humidity_map.get(solutions[5][i]))
         solutions[7].append(humidity_to_location_map.get(solutions[6][i]))
+    """
+    seeds = [int(x) for x in seeds]
+    iterable = iter(seeds)
+    element = next(iterable)
+    seed_range_pairs = []
+
+    while True:
+        try: 
+            theSeed = element
+            element = next(iterable)
+            theRange = element
+            seed_range_pairs.append([theSeed, theRange])
+            element = next(iterable)
+        except StopIteration:
+            break
     
-    min_location = min(solutions[7])
+    print(seed_range_pairs)
+    
+    solutions = [[] for x in range(0, 8)]
+    for i, elem in enumerate(seed_range_pairs):
+        #print("elem: ",elem)
+        solutions[0].append(elem)
+        solutions[1].append(getRange(elem, seed_to_soil_map))
+        solutions[2].append(getValues(solutions[1][i], soil_to_fertilizer_map))
+        solutions[3].append(getValues(solutions[2][i], fertilizer_to_water_map))
+        solutions[4].append(getValues(solutions[3][i], water_to_light_map))
+        solutions[5].append(getValues(solutions[4][i], light_to_temperature_map))
+        solutions[6].append(getValues(solutions[5][i], temperature_to_humidity_map))
+        solutions[7].append(getValues(solutions[6][i], humidity_to_location_map))
+    
+    for i, x in enumerate(solutions):
+        print(i,x)
+        
+    min_location = sys.maxsize
+    for elem in solutions[7]:
+
+        for pair in elem:
+            local_min_location = pair[0]
+            if local_min_location < min_location:
+                min_location = local_min_location
+
     print("min_location: ", min_location)
+
+
+def getRange(thePair, theMap):
+    print("getRange thePair: ", thePair)
+    theSourcePairList = theMap.find(thePair)
+    print("getRange theSourcePairList ", theSourcePairList)
+
+    theDestinationPairList = []
+
+    for x in theSourcePairList:
+        destStart = theMap.get(x[0])
+        destRange = x[1]
+        theDestinationPairList.append([destStart, destRange])
+    
+    print("getRange() theDestinationPairList: ", theDestinationPairList)
+    print()
+
+
+    return theDestinationPairList
+def getValues(valuesPairList, theMap):
+    theSourcePairList = []
+    theDestinationPairList = []
+
+    for pair in valuesPairList:
+        theSourcePairList = theMap.find(pair)
+
+        for sourcePair in theSourcePairList:
+            destStart = theMap.get(sourcePair[0])
+            destRange = sourcePair[1]
+            theDestinationPairList.append([destStart, destRange])
+
+    return theDestinationPairList
+
 
 
 def handle_map_input(theLine):
@@ -98,15 +170,7 @@ def handle_map_input(theLine):
     map_input = re.findall("[0-9]*[0-9]", theLine)
     map_input = [int(x) for x in map_input]
     theMap = myMap.myMap(map_input)
-    #print(theMap)
     return theMap
 
-
-    
-    
-      
-        
-
-        
-
+# Call main()
 main()
