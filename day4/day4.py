@@ -14,8 +14,8 @@ points_list = []
 def main():
     try: 
         # Open file containing the words separated by a line
-        theFile = open("./day4.txt")
-        #theFile = open("./day4-practice.txt")
+        #theFile = open("./day4.txt")
+        theFile = open("./day4/day4-practice.txt")
     
     except:
         print("NO FILE")
@@ -119,6 +119,7 @@ def find_duplicates_iteratively(the_duplicates):
             card_count += 1
 
             print("Card {}, points: {}".format(i, points_list[i]))
+            
             points = points_list[i]
 
             for x in range(1, points+1):
@@ -126,6 +127,7 @@ def find_duplicates_iteratively(the_duplicates):
                 print("extra card: ", i+x)
                 if not (i+x > len(points_list)-1):
                     the_duplicates[i+x] += 1
+            
     
     return card_count
             

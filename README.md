@@ -1,4 +1,4 @@
-# [Advent of Code 2023](https://adventofcode.com/2023/)
+# [](https://adventofcode.com/2023/)
 
 # [Day 1](https://adventofcode.com/2023/day/1)
 
@@ -517,5 +517,258 @@ Therefore keys 79 ~ 84 maps to 60 ~ 65 and 85 ~ 91 map to 85 ~ 91
 
 ```
 
-    
+# [Day 6](https://adventofcode.com/2023/day/6)
 
+Given a race's time and distance
+Where the time is the race's time in milliseconds
+distance is the record distance in millimeters
+
+Holding a button increases the rate of speed your boat goes. The goal is to beat the record time.
+
+## Solution
+```
+Example:
+    time = 7
+    distance = 9
+
+record_time = 7
+record_distance = 9
+
+Let Hold equal the milliseconds the button is pressed
+
+If Hold(1):
+    Boat goes 1 mm/s -> (7-1)*(1mm/s) = 6 millimeters
+If Hold(2):
+    Boat goes 2 mm/s -> (7-2)(2mm/s) = 10 millimeters
+
+Therefore the distance the boat travels, boat_distance:
+    boat_distance = (record_time - hold_time)*(boat_speed) 
+    boat_speed = hold_time
+    boat_distance = record_time*hold_time - hold_time^2
+
+boat_distance must be greater than record_distance
+
+time*hold_time - hold_time^2 > record_distance
+hold_time(record_time - hold_time) - record_distance > 0
+-hold_time^2 + record_time*hold_time - record_distance > 0
+
+```
+Quadratic equation:
+$$
+-\text{hold\_time}^2 + \text{record\_time}\times\text{hold\_time} - \text{record\_distance} > 0
+$$
+
+Using the quadratic formula where:
+$$a = -1$$
+$$b = \text{record\_time}$$
+$$c = -\text{record\_distance}$$
+
+$$
+\begin{align*}
+\\x&=\frac{-b\pm\sqrt[]{b^2-4ac}}{2a}
+\end{align*}
+$$
+
+```py
+root_0 = ((-1*b)+math.sqrt(math.pow(b, 2) - 4*a*c ))/(2*a)
+root_1 = ((-1*b)- math.sqrt(math.pow(b, 2) - 4*a*c ))/(2*a)
+```
+
+Once we get the roots, they will not be integers so we must convert them.
+The smallest root must be floored then added by 1 while the largest root must be ceiled then subtracted by 1. This ensures that they're in the range of the equation
+
+```py
+floor_root_0 = math.floor(root_0) + 1
+ceil_root_1 = math.ceil(root_1) - 1
+```
+
+![Quadratic equation](./docs/quadratic_function.png)
+
+Finally to check the number of ways to win, we simply subtract the largest root from the smallest and add 1 
+
+```py
+ways_to_win = hold_time[1] - hold_time[0] + 1
+```
+### Example Output
+```
+times:  ['7', '15', '30']
+distances:  ['9', '40', '200']
+
+record_time: 7
+record_distance: 9
+h^2 + 7*h - 9
+a:-1, b:7, c:-9
+1.6972243622680054 5.302775637731995
+2 5
+ways_to_win:  4
+
+record_time: 15
+record_distance: 40
+h^2 + 15*h - 40
+a:-1, b:15, c:-40
+3.4688711258507254 11.531128874149275
+4 11
+ways_to_win:  8
+
+record_time: 30
+record_distance: 200
+h^2 + 30*h - 200
+a:-1, b:30, c:-200
+10.0 20.0
+11 19
+ways_to_win:  9
+ways_to_win_list:  [4, 8, 9]
+ways_to_win_list product: 288
+```
+
+
+# [Day 7](https://adventofcode.com/2023/day/7)
+
+## Problem Solving/Pseudo code
+
+## Putting the hands in order of strength
+
+There are 7 types of cards from strongest to weakest:
+- Five of a kind
+- Four of a kind
+- Full house
+- Three of a kind
+- Two pair
+- One pair
+- High card
+
+### Types of Cards
+
+
+| Type | Definition |
+| ---- | ---- |
+| Five of a kind | Where all five cards have the same label |  
+| Four of a kind| Where four cards have the same label and one card has a different label |  
+| Full house | Where three cards have the same label, and the remaining two cards share a different label. |
+| Three of a kind | Where three cards have the same label, and the remaining two cards are each different from any other card in the hand |
+| Two pair | Where two cards share one label, two other cards share a second label, and the remaining card has a third label |
+| One pair | Where two cards share one label, and the other three cards have a different label from the pair and each other
+| High card | Where all cards' labels are distinct
+
+
+### Problem Solving
+
+Given 5 cards, we have to check each invidual card
+```
+Example hand: 32T3K
+
+Compare:
+    3 and 2 -> dif
+    3 and T -> dif
+    3 and 3 -> same
+    3 and K -> dif
+        2 and T -> dif
+        2 and 3 -> dif
+        2 and K -> dif
+            T and 3 -> dif
+            T and K -> dif
+                3 and K -> dif
+    Hand is One pair
+```
+
+We then have a pattern:
+```
+Let n be the number of cards and i be the ith card:
+Check
+i and i + 2, i and i + 3, ..., i and i + 5
+i + 2 and i +3, ..., i + 2 and i + 5
+```
+$$ 
+\text{We check a total of } \frac{n^2 + n}{2} \text{ times} 
+$$ 
+
+We first find the pairs in the hand:
+
+```py
+def find_pair(the_hand: str):
+    if the_hand == "":
+        return []
+    pairs = []
+    card0 = the_hand[0]
+    for card in the_hand[1:]:
+        if(card == card0):
+            pairs.append(card + card)
+        
+    return pairs + find_pair(the_hand[1:])
+
+```
+`find_pair()` will reuse the same card for pair so if there are 5 cards of the kind, it will produce 10 "pairs.
+
+| Same cards |"Pairs" | Type |
+| ----| ---- | ---- |
+| 1 | 0 | High Card |
+| 2 | 1 | One pair  |
+| 1 and 1| 2 | Two pair
+| 3 | 3 | Three of a kind |
+| 3 and 2| 4 | Full House
+| 4 | 6 | Four of a kind
+| 5 | 10 | Five of a kind
+
+Two pair and Full house are the only different types. 
+
+A two pair will have 2 sets of identical cards to one another but separate from each set.
+Example: `22334`. Therefore a Two Pair will give us 2 "Pairs"
+
+A full house hand will have 3 of the same cards and 2 that are the same with each other but different from the other 3. Example: `23332`. Therefore a Full House will give us 4 "Pairs".
+
+
+
+```
+Let pairs be the list given from find_pair()
+
+switch len(pairs):
+    case 0: High card
+    case 1: One Pair
+    case 2: Two Pair
+    case 3: Three of a kind
+    case 4: Full house
+    case 6: Four of a kind
+    case 10: Five of a kind
+```
+
+We now know the type of card each hand is. We simply now need to order them.
+From strongest to weakest the cards are A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, 2,
+Assuming the hands are grouped by their **type**, i.e. All high cards are in an unordered list:
+
+Comparing one high_card to another we have to take its first character, and compare them. If they're equal, we move to the next card in the hand. 
+
+We first have to assign values to the different cards. To do this I use a map where:
+```
+'2' = 0, 
+'3' = 1, 
+'4' = 2 
+all the way to 'A' = 12
+```
+
+```
+compare(hand_0, hand_1):
+    for (int i = 0; i < 5; i++) {
+
+        if (map(hand_0[i]) - map(hand_1[i])) != 0:
+
+            return map(hand_0[i]) - map(hand_1[i])
+        
+    } 
+```
+After sorting each list, we know create a new list where we add each element of each list starting from the weakest to the strongest hand.
+`high_cards | one pair | ... | five_of_a_kind |`
+
+Now we iterate through them:
+
+```
+Let ranked_list be the list of tuples where a tuple is (hand, bid)
+and total_winnings a sum of each bid*rank
+
+for i, hand in enumerate(ranked_list):
+
+    total_winnings = total_winnings + hand[1]*(i+1)
+
+```
+
+## Day 7 Part 2
+ 
