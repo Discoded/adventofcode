@@ -2,7 +2,7 @@
 import re
 try: 
     # Open file containing the words separated by a line
-    theFile = open("day1/day1.txt")
+    theFile = open("./day1/day1.txt")
     
 except:
     print("NO FILE")

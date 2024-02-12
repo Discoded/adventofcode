@@ -1,5 +1,11 @@
-
+day1/day1-rust/target/*
 day2/message.txt
 *.pyc
 day5/day5-output.txt
 wiki/adventofcode.wiki/
+day1/day1-rust/target/debug/day1-rust.d
+day1/day1-rust/target/.rustc_info.json
+day1/day1-rust/.vscode/launch.json
+day1/day1-rust/target/.rustc_info.json
+day1/day1-rust/target/debug/day1-rust.d
+*.tar
