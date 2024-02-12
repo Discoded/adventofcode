@@ -10,3 +10,4 @@ day1/day1-rust/target/.rustc_info.json
 day1/day1-rust/target/debug/day1-rust.d
 *.tar
 day8/thread-test.py
+day8/output8.txt

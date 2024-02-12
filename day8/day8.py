@@ -3,6 +3,7 @@ import re
 import math
 import typing
 import copy
+import time
 
 global theFile
 def main():
@@ -10,6 +11,7 @@ def main():
         # Open file containing the words separated by a line
 
         theFile = open("./day8/day8.txt")
+        #theFile = open("./day8.txt")
         #theFile = open("./day8/day8-practice.txt")
               
     except:
@@ -51,6 +53,8 @@ def main():
     exceptionCounter = 0
     steps = [0 for x in range(len(matches))]
     steps_counter = [0 for x in range(len(matches))]
+    start = time.time()
+
 
     while True:
         try:
@@ -80,6 +84,8 @@ def main():
         except BaseException as e:
             print("Exception: ", e)
             break
+        
+    end = time.time()
 
     print("original: ", original_matches)
     print("Total Steps: ", counter)
@@ -88,7 +94,8 @@ def main():
     step0 = steps[0]
     for step in steps:
         step0 = math.lcm(step0, step)
-
+    
+    print("Traversal Time: ", end - start)
     print("Lowest Common Multiple: ", step0)
 
     

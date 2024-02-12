@@ -2,21 +2,19 @@
 import concurrent.futures
 import copy
 import logging
-import logging
 import math
 import re
 import threading
 import time
-import time
 import typing
 
-global theFile
 def main():
     try: 
         # Open file containing the words separated by a line
 
-        #theFile = open("./day8/day8.txt")
-        theFile = open("./day8-practice.txt")
+        theFile = open("./day8/day8.txt")
+        #theFile = open("./day8.txt")
+        #theFile = open("./day8-practice.txt")
               
     except:
         print("NO FILE")
@@ -25,65 +23,66 @@ def main():
 
     # Left and right instructions
     line = next(iterable)
+    global l_r_instructions
     l_r_instructions = re.findall('\\w', line)
+    
     next(iterable)
-
+    global tree_dictionary
     tree_dictionary = dict()
 
     line = next(iterable)
     node = re.findall("(\\w\\w\\w)", line)
     tree_dictionary[node[0]] = [node[1], node[2]]
+
+    
     while True:
         try:
             line = next(iterable)
             node = re.findall("(\\w\\w\\w)", line)
-            print(node)
-            #tree_dictionary.append(node[0])
             tree_dictionary[node[0]] = [node[1], node[2]]
         except StopIteration:
             print("StopIteration Exception")
             break
-    #print(tree_dictionary)
-    #print(l_r_instructions)
-    #print(list(tree_dictionary))
     tree_keys = list(tree_dictionary)
     
 
-    
+    global matches
     matches = [x for x in tree_keys if x[2] == 'A']
-    print(matches)
+    print("Starting Nodes: ", matches)
     original_matches = copy.deepcopy(matches)
     # Assert that there are only 2 matches ending in 'A'
     #assert len(matches) == 2
 
     sentinels = [x for x in matches]
-    sentinel_value = 'Z'
     counter = len(sentinels)
-    # While all sentinels' last character do not equal 'Z'
 
-    format = "%(asctime)s: %(message)s"
-    logging.basicConfig(format=format, level=logging.INFO,
-                        datefmt="%H:%M:%S")
+    exceptionCounter = 0
+    steps = []
+    steps_counter = [0 for x in range(len(matches))]
+    thread_names = range(0, len(matches))
+    start = time.time()
 
-    while check_sentinels(sentinels):
-        try:
-            for instruction in l_r_instructions:
-                with concurrent.futures.ThreadPoolExecutor(max_workers=len(matches)) as executor:
-                        executor_out = executor.map(traverse_tree, range(len(matches)), matches)
-                        
-                    
-                #print(sentinels)    
-                counter += 1 
-                matches = copy.deepcopy(sentinels)
-                #print()
-        except:
-            print("Exception")
-            break
+
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(matches)) as executor:
+            results = executor.map(traverse_tree_threaded, thread_names, matches)
+        for x in results:
+            steps.append(x)
+    except Exception as e:
+        print(e.message, e.args)
+    end = time.time()
+
     print("original: ", original_matches)
-    print("final: ", sentinels)
-    print("executor: ", executor_out)
+    print("Total Steps: ", counter)
+    print("Steps For each Node before repeat: ", steps)
+    # Calculate LCM
+    step0 = steps[0]
+    for step in steps:
+        step0 = math.lcm(step0, step)
+    print("Traversal Time: ", end - start)
+    print("Lowest Common Multiple: ", step0)
 
-    print("Steps: ", counter)
+    
 
 def check_sentinels(theSentinels: typing.List[str]) -> bool:
     """Return true is all element in the given array ends with 'Z' character
@@ -98,19 +97,37 @@ def check_sentinels(theSentinels: typing.List[str]) -> bool:
             return True
     return False
 
-def traverse_tree(name, theTree: typing.Dict, instruction: str, theSentinel: str):
-    logging.info("Thread %s: starting", name)
+def traverse_tree(theInstruction: str, theSentinel: str):
+    global tree_dictionary
     assert len(theSentinel) == 3
-    if instruction == 'L':
-        print("L ", theSentinel + " -> " + theTree[theSentinel][0])
-        logging.info("Thread %s: finishing", name)
-        return theTree[theSentinel][0]
-    elif instruction == 'R':
-        print("L ", theSentinel + " -> " + theTree[theSentinel][1])
-        logging.info("Thread %s: finishing", name)
-        return theTree[theSentinel][1]
+
+    if theInstruction == 'L':
+        #print("L ", elem + " -> " + tree_dictionary[elem][0])
+        return tree_dictionary[theSentinel][0]
+    elif theInstruction == 'R':
+        #print("L ", elem + " -> " + tree_dictionary[elem][1])
+        return tree_dictionary[theSentinel][1]
     else:
         raise Exception("Else statement reached. Should not be possible.")
+
+def traverse_tree_threaded(theThreadName:int, theMatch):
+    global l_r_instructions
+    startingMatch = theMatch
+    theSteps = 0
+    print("Thread:", theThreadName, l_r_instructions[0], startingMatch, theSteps)
+    while True:
+        try:
+            for instruction in l_r_instructions:
+            
+                startingMatch = traverse_tree(instruction, startingMatch)
+                theSteps += 1
+                
+                if startingMatch[2] == 'Z':
+                    print("Thread:", theThreadName, instruction, startingMatch, theSteps)
+                    return theSteps
+        
+        except:
+            break
     
         
     
